@@ -10,6 +10,16 @@ description: >
 
 # Laravel Validation
 
+**Always use array syntax for rules**, not pipe-delimited strings. Arrays are easier to read, diff, and extend — and required when using Rule objects or closures.
+
+```php
+// WRONG:
+'email' => 'required|email|unique:users',
+
+// CORRECT:
+'email' => ['required', 'email', 'unique:users'],
+```
+
 ## Quick Decision Guide
 
 ### "How do I validate?"
@@ -88,24 +98,24 @@ Laravel's `ConvertEmptyStringsToNull` middleware converts `""` to `null`. Withou
 
 ```php
 // WRONG: empty string becomes null, fails 'string' rule
-'bio' => 'string|max:500',
+'bio' => ['string', 'max:500'],
 
 // CORRECT:
-'bio' => 'nullable|string|max:500',
+'bio' => ['nullable', 'string', 'max:500'],
 ```
 
 ### 2. `sometimes` vs `nullable` vs `required`
 
 ```php
 // required: MUST be present and non-empty
-'name' => 'required|string',
+'name' => ['required', 'string'],
 
 // nullable: can be present as null
-'nickname' => 'nullable|string',
+'nickname' => ['nullable', 'string'],
 
 // sometimes: only validate IF the field is in the input at all
 // (useful for PATCH requests where fields are optional)
-'email' => 'sometimes|required|email',
+'email' => ['sometimes', 'required', 'email'],
 ```
 
 ### 3. Unsafe `unique` ignore
@@ -126,24 +136,24 @@ Rule::unique('users')->ignore($user->id)
 
 ```php
 // WRONG: bail has no effect here
-'email' => 'required|bail|email|unique:users',
+'email' => ['required', 'bail', 'email', 'unique:users'],
 
 // CORRECT: bail first
-'email' => 'bail|required|email|unique:users',
+'email' => ['bail', 'required', 'email', 'unique:users'],
 ```
 
 ### 5. Array vs nested validation confusion
 
 ```php
 // Validates the array itself
-'tags' => 'required|array|min:1',
+'tags' => ['required', 'array', 'min:1'],
 
 // Validates each item IN the array
-'tags.*' => 'string|max:50',
+'tags.*' => ['string', 'max:50'],
 
 // Nested objects in array
-'users.*.email' => 'required|email',
-'users.*.roles.*' => 'exists:roles,name',
+'users.*.email' => ['required', 'email'],
+'users.*.roles.*' => ['exists:roles,name'],
 ```
 
 ### 6. `exists` / `unique` with soft deletes
@@ -160,13 +170,13 @@ Rule::exists('users', 'id')->whereNull('deleted_at')
 
 ```php
 // Compare against another field, not a literal date
-'end_date' => 'required|date|after:start_date',
+'end_date' => ['required', 'date', 'after:start_date'],
 
 // Compare against a literal date
-'start_date' => 'required|date|after:2024-01-01',
+'start_date' => ['required', 'date', 'after:2024-01-01'],
 
 // Use after_or_equal when same-day should be valid
-'checkout' => 'required|date|after_or_equal:checkin',
+'checkout' => ['required', 'date', 'after_or_equal:checkin'],
 ```
 
 ## Rule Builders
@@ -225,15 +235,15 @@ use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rule;
 
 $request->validate([
-    'role' => 'required|string',
+    'role' => ['required', 'string'],
     // Required only when role is admin
-    'admin_code' => Rule::requiredIf($request->role === 'admin'),
+    'admin_code' => [Rule::requiredIf($request->role === 'admin')],
 
     // Using closures for complex conditions
-    'company' => Rule::requiredIf(fn () => $user->isBusinessAccount()),
+    'company' => [Rule::requiredIf(fn () => $user->isBusinessAccount())],
 
     // Exclude from output when condition met
-    'coupon' => 'exclude_if:type,free|required|string',
+    'coupon' => ['exclude_if:type,free', 'required', 'string'],
 ]);
 ```
 
@@ -291,7 +301,7 @@ class Uppercase implements ValidationRule
 ```php
 // Inline
 $request->validate([
-    'email' => 'required|email',
+    'email' => ['required', 'email'],
 ], [
     'email.required' => 'We need your email address.',
     'email.email' => 'That doesn\'t look like a valid email.',

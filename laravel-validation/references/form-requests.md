@@ -38,8 +38,8 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
+            'title' => ['required', 'string', 'max:255'],
+            'body' => ['required', 'string'],
         ];
     }
 }
@@ -142,9 +142,9 @@ public function rules(): array
 public function rules(): array
 {
     return [
-        'type' => 'required|in:personal,business',
-        'company_name' => Rule::requiredIf($this->type === 'business'),
-        'vat_number' => Rule::requiredIf(fn () => $this->type === 'business'),
+        'type' => ['required', Rule::in(['personal', 'business'])],
+        'company_name' => [Rule::requiredIf($this->type === 'business')],
+        'vat_number' => [Rule::requiredIf(fn () => $this->type === 'business')],
     ];
 }
 ```
@@ -159,12 +159,12 @@ class SavePostRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
+            'title' => ['required', 'string', 'max:255'],
+            'body' => ['required', 'string'],
         ];
 
         if ($this->isMethod('POST')) {
-            $rules['slug'] = 'required|unique:posts';
+            $rules['slug'] = ['required', 'unique:posts'];
         }
 
         return $rules;
@@ -248,9 +248,9 @@ public function attributes(): array
 public function rules(): array
 {
     return [
-        'title' => 'required|string|max:255',
-        'slug' => 'required|string|unique:posts,slug',
-        'body' => 'required|string',
+        'title' => ['required', 'string', 'max:255'],
+        'slug' => ['required', 'string', 'unique:posts,slug'],
+        'body' => ['required', 'string'],
     ];
 }
 
@@ -258,12 +258,12 @@ public function rules(): array
 public function rules(): array
 {
     return [
-        'title' => 'sometimes|required|string|max:255',
+        'title' => ['sometimes', 'required', 'string', 'max:255'],
         'slug' => [
             'sometimes', 'required', 'string',
             Rule::unique('posts', 'slug')->ignore($this->route('post')),
         ],
-        'body' => 'sometimes|required|string',
+        'body' => ['sometimes', 'required', 'string'],
     ];
 }
 ```
@@ -274,12 +274,12 @@ public function rules(): array
 public function rules(): array
 {
     return [
-        'items' => 'required|array|min:1',
-        'items.*.product_id' => 'required|exists:products,id',
-        'items.*.quantity' => 'required|integer|min:1',
-        'items.*.options' => 'nullable|array',
-        'items.*.options.color' => 'nullable|string',
-        'items.*.options.size' => 'nullable|in:S,M,L,XL',
+        'items' => ['required', 'array', 'min:1'],
+        'items.*.product_id' => ['required', 'exists:products,id'],
+        'items.*.quantity' => ['required', 'integer', 'min:1'],
+        'items.*.options' => ['nullable', 'array'],
+        'items.*.options.color' => ['nullable', 'string'],
+        'items.*.options.size' => ['nullable', Rule::in(['S', 'M', 'L', 'XL'])],
     ];
 }
 ```

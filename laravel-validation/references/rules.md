@@ -153,11 +153,11 @@ Complete reference for all built-in validation rules (Laravel 12.x). Rules are c
 **Wildcard notation for nested arrays:**
 
 ```php
-'users' => 'required|array',
-'users.*.name' => 'required|string|max:255',
-'users.*.email' => 'required|email',
-'users.*.roles' => 'array',
-'users.*.roles.*' => 'exists:roles,name',
+'users' => ['required', 'array'],
+'users.*.name' => ['required', 'string', 'max:255'],
+'users.*.email' => ['required', 'email'],
+'users.*.roles' => ['array'],
+'users.*.roles.*' => ['exists:roles,name'],
 ```
 
 ---
@@ -177,7 +177,7 @@ Complete reference for all built-in validation rules (Laravel 12.x). Rules are c
 **Dimensions constraints:** `min_width`, `max_width`, `min_height`, `max_height`, `width`, `height`, `ratio`
 
 ```php
-'avatar' => 'dimensions:min_width=100,min_height=100,ratio=1',
+'avatar' => ['dimensions:min_width=100,min_height=100,ratio=1'],
 // Or with Rule builder:
 'avatar' => [Rule::dimensions()->maxWidth(1000)->ratio(3/2)],
 ```
@@ -199,20 +199,20 @@ use Illuminate\Validation\Rules\File;
 
 ```php
 // Basic
-'department_id' => 'exists:departments,id',
+'department_id' => ['exists:departments,id'],
 
 // With Rule builder (add query constraints)
 'department_id' => [Rule::exists('departments', 'id')->where('active', true)],
 
 // Specify connection
-'id' => 'exists:mysql.users,id',
+'id' => ['exists:mysql.users,id'],
 ```
 
 ### `unique`
 
 ```php
 // Basic
-'email' => 'unique:users,email',
+'email' => ['unique:users,email'],
 
 // Ignore current record (for updates)
 'email' => [Rule::unique('users', 'email')->ignore($user->id)],

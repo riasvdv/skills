@@ -181,6 +181,8 @@ Rule::exists('users', 'id')->whereNull('deleted_at')
 
 ## Rule Builders
 
+Use fluent builders instead of string rules for complex validation. See [references/rule-builders.md](references/rule-builders.md) for the full API of every builder.
+
 ### Password
 
 ```php
@@ -190,7 +192,7 @@ use Illuminate\Validation\Rules\Password;
 Password::defaults(fn () => Password::min(8)->uncompromised());
 
 // Use in rules
-'password' => ['required', 'confirmed', Password::defaults()],
+'password' => ['required', 'confirmed', Password::default()],
 
 // Full chain
 'password' => ['required', Password::min(8)
@@ -207,26 +209,21 @@ Password::defaults(fn () => Password::min(8)->uncompromised());
 use Illuminate\Validation\Rules\File;
 
 'document' => ['required', File::types(['pdf', 'docx'])->max('10mb')],
-'avatar' => ['required', File::image()->dimensions(Rule::dimensions()->maxWidth(2000))],
+'avatar' => ['required', Rule::imageFile()->dimensions(Rule::dimensions()->maxWidth(2000))],
 ```
 
 ### Enum
 
 ```php
-use Illuminate\Validation\Rules\Enum;
+'status' => [Rule::enum(OrderStatus::class)->except([OrderStatus::Cancelled])],
+```
 
-'status' => [Rule::enum(OrderStatus::class)],
+### Date & Numeric
 
-// Only allow specific enum values
-'status' => [Rule::enum(OrderStatus::class)->only([
-    OrderStatus::Pending,
-    OrderStatus::Active,
-])],
-
-// Exclude specific values
-'status' => [Rule::enum(OrderStatus::class)->except([
-    OrderStatus::Cancelled,
-])],
+```php
+'start_date' => [Rule::date()->afterToday()->format('Y-m-d')],
+'price' => [Rule::numeric()->decimal(2)->min(0)->max(99999.99)],
+'email' => [Rule::email()->rfcCompliant()->validateMxRecord()],
 ```
 
 ## Conditional Validation
@@ -331,4 +328,5 @@ public function attributes(): array
 ## Reference Files
 
 - **All validation rules**: See [references/rules.md](references/rules.md) for every built-in rule with signatures and descriptions
+- **Rule class & fluent builders**: See [references/rule-builders.md](references/rule-builders.md) for `Rule::unique()`, `Rule::exists()`, `Password::`, `File::`, `Rule::date()`, `Rule::numeric()`, `Rule::email()`, `Rule::enum()`, `Rule::dimensions()`, and all other fluent builder APIs
 - **Form Requests**: See [references/form-requests.md](references/form-requests.md) for Form Request patterns, methods, and advanced usage
